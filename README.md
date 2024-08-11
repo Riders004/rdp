@@ -17,13 +17,13 @@
 
 - Press Add secret
 
-- Go to Action <Click Select workflow< Select Har Pito, Press Run workflow
+- Go to Action <Click Select workflow< Select BOTRDP, Press Run workflow
 
-- Refresh the Web/page and go to Har Pito > click build
+- Refresh the Web/page and go to BOTRDP > click build
 
-- Wait 1-5 minutes
+- Wait 1-5 minutes untill the workflow completed
 
 - Press the down arrow button that says (Connect RDP.) to get IP, User, Password.
 
 
-Warning if Rdp close please click Action<Select Har Pito<Click build, Click on the three dots click run-rensjob and run the Rdp again
+Warning if Rdp close please click Action<Select BOTRDP<Click build, Click on the three dots click run-rensjob and run the Rdp again
