@@ -5,4 +5,5 @@ echo RDP Will be active for 6 hours and . will be printed as active indicator
 :check
 ping 127.0.0.1 > null
 cls
+echo -n _ 
 goto check
