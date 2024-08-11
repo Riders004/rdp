@@ -13,7 +13,7 @@
 
 - Fill Name: Enter NGROK_AUTH_TOKEN
 
-- Fill Value: Visit https://dashboard.ngrok.com/auth/your-authtoken Copy and Paste in the value
+- Fill Value: Visit [ngrok dashboard](https://dashboard.ngrok.com/get-started/your-authtoken) Copy and Paste in the value
 
 - Press Add secret
 
