@@ -10,7 +10,6 @@ jobs:
       run: |
         Invoke-WebRequest https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip -OutFile ngrok.zip
         Invoke-WebRequest https://raw.githubusercontent.com/${{ github.actor }}/rdp/master/start.bat -OutFile start.bat
-        Invoke-WebRequest https://raw.githubusercontent.com/${{ github.actor }}/rdp/master/download1.jpeg -OutFile wallpaper.bat
         Invoke-WebRequest https://raw.githubusercontent.com/${{ github.actor }}/rdp/master/loop.bat -OutFile loop.bat
     - name: Extract Ngrok File.
       run: Expand-Archive ngrok.zip
