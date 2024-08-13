@@ -1,5 +1,7 @@
 @echo off
 del /f "C:\Users\Public\Desktop\Epic Games Launcher.lnk" > out.txt 2>&1
+del /f "C:\Users\Public\Desktop\Unity Hub.lnk" > out.txt 2>&1
+del /f "C:\Users\Public\Desktop\R 4.4.1.lnk" > out.txt 2>&1
 net config server /srvcomment:"Windows Server 2019 By lucifer" > out.txt 2>&1
 REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" /V EnableAutoTray /T REG_DWORD /D 0 /F > out.txt 2>&1
 net user lucifer JohnCena?6969 /add >nul
