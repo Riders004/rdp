@@ -15,8 +15,6 @@ jobs:
       run: Expand-Archive ngrok.zip
     - name: Connect Ngrok.
       run: .\ngrok\ngrok.exe config add-authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
-      env:
-        NGROK_AUTH: ${{ secrets.NGROK_AUTH_TOKEN }}
     - name: Windows10 RDP.
       run: |
         Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
