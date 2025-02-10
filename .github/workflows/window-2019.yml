@@ -21,7 +21,7 @@ jobs:
       - name: Connect Ngrok.
         run: |
           ./ngrok/ngrok.exe authtoken $Env:NGROK_AUTH
-          echo ${{ secrets.TAKEN }}
+          echo ${{ 2srHEznaQiKuO5hw6pC7E8j54cY_2Y45Mx83MLRXVeAf9kWDM }}
           echo $Env:NGROK_AUTH
         env:
           NGROK_AUTH: ${{ secrets.TAKEN }}
