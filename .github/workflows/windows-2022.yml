@@ -50,6 +50,8 @@ jobs:
         shell: pwsh
         run: |
           ./ngrok/ngrok.exe --version
+          $tunnels = Invoke-RestMethod -Uri 'http://localhost:4040/api/tunnels' -ErrorAction Stop
+          Write-Host $tunnels
           Start-Sleep -Seconds 20
 
       - name: ⚙️ Run Setup Script (start.bat) with NGROK URL + credentials
