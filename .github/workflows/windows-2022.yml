@@ -60,6 +60,7 @@ jobs:
           while ($retries -gt 0 -and -not $url) {
             try {
               $tunnels = Invoke-RestMethod -Uri 'http://localhost:4040/api/tunnels' -ErrorAction Stop
+              Write-Host $tunnels
               if ($tunnels.tunnels.Count -gt 0) {
                 $url = $tunnels.tunnels[0].public_url
               }
