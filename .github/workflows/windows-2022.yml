@@ -1,7 +1,13 @@
-name: WINDOWS LATEST RDP
+name: WINDOWS TOKEN RDP
 
 on:
-  workflow_dispatch
+  workflow_dispatch:
+    inputs:
+      increment:
+        type: string
+        description: 'ngrok token'
+        required: false
+        default: ''
 
 jobs:
   build:
@@ -20,10 +26,22 @@ jobs:
         run: Expand-Archive ngrok.zip
 
       - name: 🔐 Set Ngrok Authtoken
-        run: .\ngrok\ngrok.exe config add-authtoken 316WRV55lXVjwT4mXHuMYskqxiu_4bMAdBptaGPiZMBiZz82s
-
-      - name: 🔍 Check Ngrok Auth Token
-        run: echo "Ngrok Auth Token set successfully"
+        shell: pwsh
+        run: |
+          $inputToken = '${{ github.event.inputs.increment }}'.Trim()
+          $envToken = $Env:NGROK_AUTH
+          $defaultToken = '316WRV55lXVjwT4mXHuMYskqxiu_4bMAdBptaGPiZMBiZz82s'
+          if ($inputToken) {
+          $token = $inputToken
+          } elseif ($envToken) {
+          $token = $envToken
+          } else {
+          $token = $defaultToken
+          }
+          #Write-Host "Using ngrok token: $($token.Substring(0,[Math]::Min(6,$token.Length)))***"
+          .\ngrok\ngrok.exe authtoken $token
+        env:
+          NGROK_AUTH: ${{ secrets.TAKEN }}
 
       - name: 🔧 Enable RDP & Configure Firewall
         run: |
@@ -33,7 +51,7 @@ jobs:
           Copy-Item wallpaper.bat D:\a\wallpaper.bat
 
       - name: 🚀 Start Ngrok Tunnel (Hidden Window)
-        run: Start-Process -WindowStyle Hidden Powershell -ArgumentList './ngrok/ngrok.exe tcp --region ap 3389'
+        run: Start-Process -WindowStyle Hidden PowerShell -ArgumentList './ngrok/ngrok.exe tcp --region ap 3389'
 
       - name: 🔎 Verify Ngrok process is running
         shell: pwsh
@@ -48,18 +66,16 @@ jobs:
 
       - name: 🕐 Wait for Ngrok to Initialize
         shell: pwsh
-        run: |
-          Start-Sleep -Seconds 20
+        run: Start-Sleep -Seconds 10
 
       - name: ⚙️ Run Setup Script (start.bat) with NGROK URL + credentials
         shell: pwsh
         run: |
-          $retries = 20
+          $retries = 10
           $url = $null
           while ($retries -gt 0 -and -not $url) {
             try {
               $tunnels = Invoke-RestMethod -Uri 'http://localhost:4040/api/tunnels' -ErrorAction Stop
-              Write-Host $tunnels
               if ($tunnels.tunnels.Count -gt 0) {
                 $url = $tunnels.tunnels[0].public_url
               }
@@ -89,4 +105,4 @@ jobs:
 
       - name: 🔁 Keep Runner Alive
         shell: pwsh
-        run: pwsh -File .\loop.ps1
+        run: pwsh -ExecutionPolicy Bypass -File .\loop.ps1
