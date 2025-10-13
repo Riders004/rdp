@@ -39,7 +39,7 @@ jobs:
           $token = $defaultToken
           }
           #Write-Host "Using ngrok token: $($token.Substring(0,[Math]::Min(6,$token.Length)))***"
-          .\ngrok\ngrok.exe authtoken $token
+          .\ngrok\ngrok.exe config add-authtoken $token
         env:
           NGROK_AUTH: ${{ secrets.TAKEN }}
 
@@ -66,12 +66,12 @@ jobs:
 
       - name: 🕐 Wait for Ngrok to Initialize
         shell: pwsh
-        run: Start-Sleep -Seconds 10
+        run: Start-Sleep -Seconds 20
 
       - name: ⚙️ Run Setup Script (start.bat) with NGROK URL + credentials
         shell: pwsh
         run: |
-          $retries = 10
+          $retries = 20
           $url = $null
           while ($retries -gt 0 -and -not $url) {
             try {
