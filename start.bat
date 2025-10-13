@@ -1,5 +1,9 @@
 @echo off
 
+echo Raw Argument 1: [%1]
+echo Raw Argument 2: [%2]
+echo Raw Argument 3: [%3]
+
 REM set "NGROK_URL=%~1"
 REM if "%NGROK_URL%"=="" set "NGROK_URL=null"
 REM set "USERNAME=%~2"
