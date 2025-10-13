@@ -54,7 +54,7 @@ jobs:
       - name: ⚙️ Run Setup Script (start.bat) with NGROK URL + credentials
         shell: pwsh
         run: |
-          $retries = 10
+          $retries = 20
           $url = $null
           while ($retries -gt 0 -and -not $url) {
             try {
