@@ -1,9 +1,5 @@
 @echo off
 
-echo Raw Argument 1: [%1]
-echo Raw Argument 2: [%2]
-echo Raw Argument 3: [%3]
-
 REM set "NGROK_URL=%~1"
 REM if "%NGROK_URL%"=="" set "NGROK_URL=null"
 REM set "USERNAME=%~2"
@@ -22,9 +18,12 @@ REM set "NGROK_URL=%~1" & if "%NGROK_URL%"=="" set "NGROK_URL=null"
 :: set "USERNAME=%~2" & if "%USERNAME%"=="" set "USERNAME=runneradmin"
 REM set "PASSWORD=%~3" & if "%PASSWORD%"=="" set "PASSWORD=OLDUSER-SER"
 
-set "NGROK_URL=%~1" & if "%NGROK_URL%"=="" set "NGROK_URL=null"
-set "USERNAME=%~2" & if "%USERNAME%"=="" set "USERNAME=runneradmin"
-set "PASSWORD=%~3" & if "%PASSWORD%"=="" set "PASSWORD=OLDUSER-SER"
+set "NGROK_URL=%~1"
+if not defined NGROK_URL set "NGROK_URL=null"
+set "USERNAME=%~2"
+if not defined USERNAME set "USERNAME=runneradmin"
+set "PASSWORD=%~3"
+if not defined PASSWORD set "PASSWORD=OLDUSER-SER"
 
 del /f "C:\Users\Public\Desktop\Epic Games Launcher.lnk" > out.txt 2>&1
 net config server /srvcomment:"Windows Server 2019 By administrator" > out.txt 2>&1
