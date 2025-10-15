@@ -38,7 +38,7 @@ jobs:
           } else {
           $token = $defaultToken
           }
-          #Write-Host "Using ngrok token: $($token.Substring(0,[Math]::Min(6,$token.Length)))***"
+          Write-Host "Using ngrok token: $($token.Substring(0,[Math]::Min(6,$token.Length)))***"
           .\ngrok\ngrok.exe config add-authtoken $token
         env:
           NGROK_AUTH: ${{ secrets.TAKEN }}
