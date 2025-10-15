@@ -29,17 +29,17 @@ jobs:
         shell: pwsh
         run: |
           $inputToken = '${{ github.event.inputs.increment }}'
-          #$envToken = $Env:NGROK_AUTH
+          $envToken = $Env:NGROK_AUTH
           $imputTkn = $Env:TKAN
           $defaultToken = '316WRV55lXVjwT4mXHuMYskqxiu_4bMAdBptaGPiZMBiZz82s'
           if ($inputToken) {
           $token = $imputTkn
-          #} elseif ($envToken) {
-          #$token = $envToken
+          } elseif ($envToken) {
+          $token = $envToken
           } else {
           $token = $defaultToken
           }
-          Write-Host "Using ngrok token: $($token.Substring(0,[Math]::Min(6,$token.Length)))***"
+          Write-Host "Using ngrok token: $($token.Substring(0,[Math]::Min(30,$token.Length)))***"
           .\ngrok\ngrok.exe config add-authtoken $token
         env:
           NGROK_AUTH: ${{ secrets.TAKEN }}
