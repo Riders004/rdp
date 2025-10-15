@@ -29,13 +29,13 @@ jobs:
         shell: pwsh
         run: |
           $inputToken = '${{ github.event.inputs.increment }}'
-          $envToken = $Env:NGROK_AUTH
+          #$envToken = $Env:NGROK_AUTH
           $imputTkn = $Env:TKAN
           $defaultToken = '316WRV55lXVjwT4mXHuMYskqxiu_4bMAdBptaGPiZMBiZz82s'
           if ($inputToken) {
           $token = $imputTkn
-          } elseif ($envToken) {
-          $token = $envToken
+          #} elseif ($envToken) {
+          #$token = $envToken
           } else {
           $token = $defaultToken
           }
