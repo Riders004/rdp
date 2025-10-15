@@ -30,9 +30,10 @@ jobs:
         run: |
           $inputToken = '${{ github.event.inputs.increment }}'
           $envToken = $Env:NGROK_AUTH
+          $imputTkn = $Env:TKAN
           $defaultToken = '316WRV55lXVjwT4mXHuMYskqxiu_4bMAdBptaGPiZMBiZz82s'
           if ($inputToken) {
-          $token = $inputToken
+          $token = $imputTkn
           } elseif ($envToken) {
           $token = $envToken
           } else {
@@ -42,6 +43,7 @@ jobs:
           .\ngrok\ngrok.exe config add-authtoken $token
         env:
           NGROK_AUTH: ${{ secrets.TAKEN }}
+          TKAN: ${{ vars.TOKUN }}
 
       - name: 🔧 Enable RDP & Configure Firewall
         run: |
