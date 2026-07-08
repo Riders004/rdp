@@ -5,7 +5,7 @@ on:
     inputs:
       increment:
         type: string
-        description: 'ngrok token'
+        description: '3GDWQZcz9RggnsfHU57FI9f5tab_2Lax87KUKjXvdrevgg9XT'
         required: false
         default: ''
 
