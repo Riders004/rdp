@@ -51,7 +51,38 @@ jobs:
           Copy-Item wallpaper.bat D:\a\wallpaper.bat
 
       - name: 🚀 Start Ngrok Tunnel (Hidden Window)
-        run: Start-Process -WindowStyle Hidden PowerShell -ArgumentList './ngrok/ngrok.exe tcp --region ap 3389'
+        shell: pwsh
+        run: |
+          $ngrok = Join-Path $PWD "ngrok\ngrok.exe"
+          $stdout = Join-Path $PWD "ngrok.log"
+          $stderr = Join-Path $PWD "ngrok-error.log"
+
+          if (-not (Test-Path $ngrok)) {
+            Write-Host "❌ Ngrok executable not found: $ngrok"
+            exit 1
+          }
+
+          Write-Host "🚀 Starting Ngrok from: $ngrok"
+          $proc = Start-Process `
+            -FilePath $ngrok `
+            -ArgumentList @("tcp", "--region", "ap", "3389") `
+            -WorkingDirectory (Split-Path $ngrok) `
+            -WindowStyle Hidden `
+            -RedirectStandardOutput $stdout `
+            -RedirectStandardError $stderr `
+            -PassThru
+
+          Write-Host "Ngrok PID: $($proc.Id)"
+          Start-Sleep -Seconds 3
+
+          if ($proc.HasExited) {
+            Write-Host "❌ Ngrok exited immediately with code: $($proc.ExitCode)"
+            if (Test-Path $stderr) { Get-Content $stderr }
+            if (Test-Path $stdout) { Get-Content $stdout }
+            exit 1
+          }
+
+          Write-Host "✅ Ngrok started successfully."
 
       - name: 🔎 Verify Ngrok process is running
         shell: pwsh
@@ -61,6 +92,8 @@ jobs:
             Write-Host "✅ Ngrok process is running (PID: $($proc.Id))"
           } else {
             Write-Host "❌ Ngrok process NOT found!"
+            if (Test-Path .\ngrok-error.log) { Get-Content .\ngrok-error.log }
+            if (Test-Path .\ngrok.log) { Get-Content .\ngrok.log }
             exit 1
           }
 
