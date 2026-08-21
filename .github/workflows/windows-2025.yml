@@ -50,9 +50,10 @@ jobs:
           Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 1
           Copy-Item wallpaper.bat D:\a\wallpaper.bat
 
-      - name: 🚀 Start Ngrok Tunnel (Hidden Window)
+      - name: 🚀 Start Ngrok + Configure RDP Tunnel
         shell: pwsh
         run: |
+          $ErrorActionPreference = 'Stop'
           $ngrok = Join-Path $PWD "ngrok\ngrok.exe"
           $stdout = Join-Path $PWD "ngrok.log"
           $stderr = Join-Path $PWD "ngrok-error.log"
@@ -63,9 +64,10 @@ jobs:
           }
 
           Write-Host "🚀 Starting Ngrok from: $ngrok"
+          # Ngrok v3 no longer needs --region.
           $proc = Start-Process `
             -FilePath $ngrok `
-            -ArgumentList @("tcp", "--region", "ap", "3389") `
+            -ArgumentList @("tcp", "3389") `
             -WorkingDirectory (Split-Path $ngrok) `
             -WindowStyle Hidden `
             -RedirectStandardOutput $stdout `
@@ -73,69 +75,61 @@ jobs:
             -PassThru
 
           Write-Host "Ngrok PID: $($proc.Id)"
-          Start-Sleep -Seconds 3
 
-          if ($proc.HasExited) {
-            Write-Host "❌ Ngrok exited immediately with code: $($proc.ExitCode)"
+          # Keep all Ngrok-dependent work in this SAME step.
+          # GitHub Actions may clean up background processes at step boundaries.
+          $ready = $false
+          $url = $null
+          for ($i = 1; $i -le 20; $i++) {
+            Start-Sleep -Seconds 2
+
+            if ($proc.HasExited) {
+              Write-Host "❌ Ngrok exited with code: $($proc.ExitCode)"
+              if (Test-Path $stderr) { Get-Content $stderr }
+              if (Test-Path $stdout) { Get-Content $stdout }
+              exit 1
+            }
+
+            try {
+              $tunnels = Invoke-RestMethod -Uri 'http://127.0.0.1:4040/api/tunnels' -ErrorAction Stop
+              if ($tunnels.tunnels -and $tunnels.tunnels.Count -gt 0) {
+                $url = $tunnels.tunnels[0].public_url
+                if ($url) {
+                  $ready = $true
+                  break
+                }
+              }
+            } catch {
+              Write-Host "⏳ Waiting for Ngrok API... ($i/20)"
+            }
+          }
+
+          if (-not $ready) {
+            Write-Host "❌ Ngrok started but no tunnel became available."
             if (Test-Path $stderr) { Get-Content $stderr }
             if (Test-Path $stdout) { Get-Content $stdout }
             exit 1
           }
 
-          Write-Host "✅ Ngrok started successfully."
-
-      - name: 🔎 Verify Ngrok process is running
-        shell: pwsh
-        run: |
-          $proc = Get-Process -Name ngrok -ErrorAction SilentlyContinue
-          if ($proc) {
-            Write-Host "✅ Ngrok process is running (PID: $($proc.Id))"
-          } else {
-            Write-Host "❌ Ngrok process NOT found!"
-            if (Test-Path .\ngrok-error.log) { Get-Content .\ngrok-error.log }
-            if (Test-Path .\ngrok.log) { Get-Content .\ngrok.log }
-            exit 1
-          }
-
-      - name: 🕐 Wait for Ngrok to Initialize
-        shell: pwsh
-        run: Start-Sleep -Seconds 20
-
-      - name: ⚙️ Run Setup Script (start.bat) with NGROK URL + credentials
-        shell: pwsh
-        run: |
-          $retries = 10
-          $url = $null
-          while ($retries -gt 0 -and -not $url) {
-            try {
-              $tunnels = Invoke-RestMethod -Uri 'http://localhost:4040/api/tunnels' -ErrorAction Stop
-              if ($tunnels.tunnels.Count -gt 0) {
-                $url = $tunnels.tunnels[0].public_url
-              }
-            } catch {}
-            if (-not $url) { Start-Sleep -Seconds 3 }
-            $retries--
-          }
-
-          if (-not $url) {
-            Write-Host "❌ Could not fetch Ngrok URL. Check ngrok process and authtoken."
-            exit 1
-          }
-
+          Write-Host "✅ Ngrok process is running (PID: $($proc.Id))"
           Write-Host "✅ Ngrok Public URL: $url"
 
           $escapedUrl = $url.Replace('"', '\"')
           $escapedUser = 'administrator'.Replace('"','\"')
           $escapedPass = 'OLDUSER#06'.Replace('"','\"')
-          $osVersion = '2025'
+          $osVersion = 'Latest'
 
+          Write-Host "⚙️ Running RDP setup..."
           $cmd = ".\start.bat `"$escapedUrl`" `"$escapedUser`" `"$escapedPass`" `"$osVersion`""
           cmd.exe /c $cmd
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "❌ start.bat failed with exit code $LASTEXITCODE"
+            exit $LASTEXITCODE
+          }
 
-      - name: 🌐 Debug Ngrok API response raw
-        shell: pwsh
-        run: curl.exe -s http://localhost:4040/api/tunnels | Write-Host
+          Write-Host "🌐 Ngrok API response:"
+          curl.exe -s http://127.0.0.1:4040/api/tunnels
+          Write-Host ""
 
-      - name: 🔁 Keep Runner Alive
-        shell: pwsh
-        run: .\loop.bat
+          Write-Host "🔁 Keeping runner and Ngrok tunnel alive..."
+          & .\loop.bat
